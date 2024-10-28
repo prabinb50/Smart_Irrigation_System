@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soil Moisture Control</title>
+    <script>
+        // Replace with your ESP32 IP address
+        const esp32IpAddress = '192.168.1.100'; // Your ESP32 IP address
+
+        // Function to fetch the sensor data and update the UI
+        function fetchSensorData() {
+            fetch(`http://${esp32IpAddress}/sensor`)
+                .then(response => response.text())
+                .then(data => {
+                    const parts = data.split(',');
+                    const sensorValue = parts[0];
+                    const relayStatus = parts[1] == '1' ? 'ON' : 'OFF';
+
+                    // Update the HTML elements with the fetched data
+                    document.getElementById('sensorValue').innerText = sensorValue;
+                    document.getElementById('relayStatus').innerText = relayStatus;
+                })
+                .catch(error => console.error('Error fetching sensor data:', error));
+        }
+
+        // Function to toggle the relay state
+        function toggleRelay() {
+            fetch(`http://${esp32IpAddress}/toggle`)
+                .then(response => response.text())
+                .then(data => {
+                    const relayStatus = data == '1' ? 'ON' : 'OFF';
+                    document.getElementById('relayStatus').innerText = relayStatus;
+                })
+                .catch(error => console.error('Error toggling relay:', error));
+        }
+
+        // Fetch sensor data every second
+        setInterval(fetchSensorData, 1000);
+    </script>
+</head>
+
+<body>
+    <h1>Soil Moisture Sensor</h1>
+    <p>Soil Moisture Sensor Value: <span id="sensorValue">0</span></p>
+    <p><strong>Relay Status:</strong> <span id="relayStatus">OFF</span></p>
+    <button onclick="toggleRelay()">Toggle Relay</button>
+</body>
+
+</html>
